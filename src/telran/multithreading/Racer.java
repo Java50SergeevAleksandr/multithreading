@@ -1,9 +1,9 @@
 package telran.multithreading;
 
-import java.time.Instant;
+
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.IntStream;
+import java.util.Random;
 
 public class Racer extends Thread {
 	private static final int MIN_SLEEP = 2;
@@ -20,7 +20,7 @@ public class Racer extends Thread {
 	public void run() {
 		for (int i = 0; i < Race.distance; i++) {
 			try {
-				sleep(IntStream.range(MIN_SLEEP, MAX_SLEEP + 1).limit(1).sum());
+				sleep(new Random().ints(1, MIN_SLEEP, MAX_SLEEP + 1).sum());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
