@@ -1,4 +1,4 @@
-package telran.multithreading;
+package telran.SheduledPrinting;
 
 import java.util.stream.IntStream;
 
@@ -10,22 +10,18 @@ public class SheduledNumbersPrintingApp {
 	public static void main(String[] args) {
 		NumberPrinter[] arr = new NumberPrinter[N_PRINTERS];
 		createThreads(arr);
-		linkNextThreads(arr);
 		for (Thread t : arr) {
 			t.start();
 		}
 		arr[0].interrupt();
 	}
 
-	private static void linkNextThreads(NumberPrinter[] arr) {
-		IntStream.range(0, N_PRINTERS).forEach(i -> arr[i].setNextThread(arr[getNextThread(i)]));
-	}
-
 	private static void createThreads(NumberPrinter[] arr) {
-		IntStream.range(0, N_PRINTERS).forEach(i -> arr[i] = new NumberPrinter(N_NUMBERS, N_PORTIONS, i + 1));
-	}
-
-	private static int getNextThread(int i) {
-		return i < N_PRINTERS - 1 ? i + 1 : 0;
+		arr[0] = new NumberPrinter(N_NUMBERS, N_PORTIONS, 1);
+		IntStream.range(1, N_PRINTERS).forEach(i -> {
+			arr[i] = new NumberPrinter(N_NUMBERS, N_PORTIONS, i + 1);
+			arr[i - 1].setNextThread(arr[i]);
+		});
+		arr[arr.length - 1].setNextThread(arr[0]);
 	}
 }

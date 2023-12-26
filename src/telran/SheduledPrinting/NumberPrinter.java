@@ -1,9 +1,8 @@
-package telran.multithreading;
+package telran.SheduledPrinting;
 
 import java.util.stream.IntStream;
 
 public class NumberPrinter extends Thread {
-	private static final int SLEEP_TIME = Integer.MAX_VALUE;
 	private int counter = 0;
 	private int N_PORTIONS;
 	private int N_STRING;
@@ -23,7 +22,7 @@ public class NumberPrinter extends Thread {
 
 	private void sleepState() {
 		try {
-			sleep(SLEEP_TIME);
+			join();
 		} catch (InterruptedException e) {
 			printNubers();
 			nextThread.interrupt();
