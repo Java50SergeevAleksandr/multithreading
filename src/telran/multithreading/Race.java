@@ -1,15 +1,20 @@
 package telran.multithreading;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
+
 public class Race {
-	static int distance;
-	static int winner;
+	int distance;
+	LocalTime startTime;
+	public ArrayList<Racer> winners;
 
 	public Race(int distance) {
-		Race.distance = distance;
-		Race.winner = -1;
+		this.distance = distance;
+		winners = new ArrayList<>();
 	}
 
-	public void setWinner(int numberOfRacer) {
-		Race.winner = numberOfRacer;
+	public void setStartTime() {
+		startTime = LocalTime.now();
 	}
+
 }

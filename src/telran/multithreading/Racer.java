@@ -9,15 +9,16 @@ public class Racer extends Thread {
 	private static final int MAX_SLEEP = 5;
 	int numberOfRacer;
 	LocalTime finishTime;
+	Race race;
 
-	public Racer(int numberOfRacer) {
+	public Racer(int numberOfRacer, Race race) {
 		this.numberOfRacer = numberOfRacer + 1;
-
+		this.race = race;
 	}
 
 	@Override
 	public void run() {
-		for (int i = 0; i < Race.distance; i++) {
+		for (int i = 0; i < race.distance; i++) {
 			try {
 				sleep(new Random().ints(1, MIN_SLEEP, MAX_SLEEP + 1).sum());
 			} catch (InterruptedException e) {
@@ -27,5 +28,8 @@ public class Racer extends Thread {
 					+ LocalTime.now().format(DateTimeFormatter.ofPattern("ss:n")));
 		}
 		finishTime = LocalTime.now();
+		synchronized (race) {
+			race.winners.add(this);
+		}
 	}
 }
