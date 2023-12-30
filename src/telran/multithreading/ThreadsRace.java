@@ -28,7 +28,7 @@ public class ThreadsRace {
 		Race race = new Race(distance);
 		IntStream.range(0, numberOfThreads).forEach(i -> racerArr.add(new Racer(i, race)));
 		startRace(racerArr, race);
-		printResults(race);
+		printResults(getWinner(racerArr), io);
 	}
 
 	private static void startRace(ArrayList<Racer> racerArr, Race race) {
@@ -43,10 +43,21 @@ public class ThreadsRace {
 		});
 	}
 
-	private static void printResults(Race race) {
-		System.out.println("Place   Racer number   Time");
-		IntStream.range(0, race.winners.size()).forEach(
-				i -> System.out.println((i + 1) + " ".repeat(10) + race.winners.get(i).numberOfRacer + " ".repeat(10)
-						+ ChronoUnit.MILLIS.between(race.startTime, race.winners.get(i).finishTime) + " ms"));
+	private static int getWinner(ArrayList<Racer> racerArr) {
+		long time = Long.MAX_VALUE;
+		int winner = -1;
+		for (Racer r : racerArr) {
+			long newTime = r.getResultTime();
+			if (newTime < time) {
+				time = newTime;
+				winner = r.numberOfRacer;
+			}
+		}
+		return winner;
 	}
+
+	private static void printResults(int winner, InputOutput io) {
+		io.writeLine("Congratulations to thread " + winner);
+	}
+
 }

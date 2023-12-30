@@ -3,13 +3,14 @@ package telran.multithreading;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
+import java.util.concurrent.atomic.*;
 
 public class Racer extends Thread {
 	private static final int MIN_SLEEP = 2;
 	private static final int MAX_SLEEP = 5;
 	int numberOfRacer;
-	LocalTime finishTime;
 	Race race;
+	AtomicLong atomicResultTime = new AtomicLong();
 
 	public Racer(int numberOfRacer, Race race) {
 		this.numberOfRacer = numberOfRacer + 1;
@@ -27,9 +28,10 @@ public class Racer extends Thread {
 			System.out.println("Racer: " + numberOfRacer + ", distance: " + (i + 1) + ", time: "
 					+ LocalTime.now().format(DateTimeFormatter.ofPattern("ss:n")));
 		}
-		finishTime = LocalTime.now();
-		synchronized (race) {
-			race.winners.add(this);
-		}
+		atomicResultTime.set(LocalTime.now().toNanoOfDay());
+	}
+
+	public long getResultTime() {
+		return atomicResultTime.get();
 	}
 }
