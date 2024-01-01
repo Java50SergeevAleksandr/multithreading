@@ -28,10 +28,7 @@ public class Racer extends Thread {
 			System.out.println("Racer: " + numberOfRacer + ", distance: " + (i + 1) + ", time: "
 					+ LocalTime.now().format(DateTimeFormatter.ofPattern("ss:n")));
 		}
-		atomicResultTime.set(LocalTime.now().toNanoOfDay());
+		race.setWinner(numberOfRacer);
 	}
 
-	public long getResultTime() {
-		return atomicResultTime.get();
-	}
 }

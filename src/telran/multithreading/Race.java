@@ -2,9 +2,11 @@ package telran.multithreading;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Race {
 	int distance;
+	AtomicInteger winner = new AtomicInteger(-1);
 	LocalTime startTime;
 	public ArrayList<Racer> winners;
 
@@ -17,4 +19,11 @@ public class Race {
 		startTime = LocalTime.now();
 	}
 
+	public void setWinner(int number) {
+		winner.compareAndSet(-1, number);
+	}
+
+	public int getWinner() {
+		return winner.get();
+	}
 }

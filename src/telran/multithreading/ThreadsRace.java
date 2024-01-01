@@ -28,7 +28,7 @@ public class ThreadsRace {
 		Race race = new Race(distance);
 		IntStream.range(0, numberOfThreads).forEach(i -> racerArr.add(new Racer(i, race)));
 		startRace(racerArr, race);
-		printResults(getWinner(racerArr), io);
+		printResults(race.getWinner(), io);
 	}
 
 	private static void startRace(ArrayList<Racer> racerArr, Race race) {
@@ -41,19 +41,6 @@ public class ThreadsRace {
 				e.printStackTrace();
 			}
 		});
-	}
-
-	private static int getWinner(ArrayList<Racer> racerArr) {
-		long time = Long.MAX_VALUE;
-		int winner = -1;
-		for (Racer r : racerArr) {
-			long newTime = r.getResultTime();
-			if (newTime < time) {
-				time = newTime;
-				winner = r.numberOfRacer;
-			}
-		}
-		return winner;
 	}
 
 	private static void printResults(int winner, InputOutput io) {
