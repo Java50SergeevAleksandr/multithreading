@@ -17,11 +17,7 @@ public class Race {
 
 	public void setStartTime() {
 		startTime = LocalTime.now();
-	}
-
-	public void setWinner(int number) {
-		winner.compareAndSet(-1, number);
-	}
+	}	
 
 	public int getWinner() {
 		return winner.get();

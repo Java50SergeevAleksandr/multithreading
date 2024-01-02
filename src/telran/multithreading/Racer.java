@@ -28,7 +28,7 @@ public class Racer extends Thread {
 			System.out.println("Racer: " + numberOfRacer + ", distance: " + (i + 1) + ", time: "
 					+ LocalTime.now().format(DateTimeFormatter.ofPattern("ss:n")));
 		}
-		race.setWinner(numberOfRacer);
+		race.winner.compareAndSet(-1, numberOfRacer);
 	}
 
 }
