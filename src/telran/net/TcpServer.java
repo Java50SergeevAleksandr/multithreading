@@ -19,9 +19,9 @@ public class TcpServer implements Runnable, AutoCloseable {
 		try {
 			while (true) {
 				Socket socket = serverSocket.accept();
-				ClientSessionHandler client = new ClientSessionHandler(socket, protocol);
+				ClientSessionHandler clientSession = new ClientSessionHandler(socket, protocol);
 				System.out.println("Client " + socket.getRemoteSocketAddress() + " is connected");
-				client.run();
+				(new Thread(clientSession)).start();
 			}
 
 		} catch (Exception e) {

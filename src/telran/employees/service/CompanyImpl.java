@@ -173,30 +173,25 @@ public class CompanyImpl implements Company {
 
 	@Override
 	public Employee updateSalary(long id, int newSalary) {
-		try {
-			Employee empl = removeEmployee(id);
-			if (empl != null) {
-				Employee newEmpl = new Employee(id, empl.name(), empl.department(), newSalary, empl.birthDate());
-				addEmployee(newEmpl);
-			}
-			return empl;
-		} finally {
-			writeLock.unlock();
+
+		Employee empl = removeEmployee(id);
+		if (empl != null) {
+			Employee newEmpl = new Employee(id, empl.name(), empl.department(), newSalary, empl.birthDate());
+			addEmployee(newEmpl);
 		}
+		return empl;
 
 	}
 
 	@Override
 	public Employee updateDepartment(long id, String department) {
-		try {
-			Employee empl = removeEmployee(id);
-			if (empl != null) {
-				Employee newEmpl = new Employee(id, empl.name(), department, empl.salary(), empl.birthDate());
-				addEmployee(newEmpl);
-			}
-			return empl;
-		} finally {
-			writeLock.unlock();
+
+		Employee empl = removeEmployee(id);
+		if (empl != null) {
+			Employee newEmpl = new Employee(id, empl.name(), department, empl.salary(), empl.birthDate());
+			addEmployee(newEmpl);
 		}
+		return empl;
+
 	}
 }
