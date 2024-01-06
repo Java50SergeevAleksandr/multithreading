@@ -160,11 +160,7 @@ public class CompanyImpl implements Company {
 	}
 
 	private LocalDate getDate(int ageFrom) {
-		try {
-			return LocalDate.now().minusYears(ageFrom);
-		} finally {
-			readLock.unlock();
-		}
+		return LocalDate.now().minusYears(ageFrom);
 	}
 
 	private int getAge(LocalDate birthDate) {
@@ -173,25 +169,30 @@ public class CompanyImpl implements Company {
 
 	@Override
 	public Employee updateSalary(long id, int newSalary) {
-
-		Employee empl = removeEmployee(id);
-		if (empl != null) {
-			Employee newEmpl = new Employee(id, empl.name(), empl.department(), newSalary, empl.birthDate());
-			addEmployee(newEmpl);
+		try {
+			Employee empl = removeEmployee(id);
+			if (empl != null) {
+				Employee newEmpl = new Employee(id, empl.name(), empl.department(), newSalary, empl.birthDate());
+				addEmployee(newEmpl);
+			}
+			return empl;
+		} finally {
+			writeLock.unlock();
 		}
-		return empl;
 
 	}
 
 	@Override
 	public Employee updateDepartment(long id, String department) {
-
-		Employee empl = removeEmployee(id);
-		if (empl != null) {
-			Employee newEmpl = new Employee(id, empl.name(), department, empl.salary(), empl.birthDate());
-			addEmployee(newEmpl);
+		try {
+			Employee empl = removeEmployee(id);
+			if (empl != null) {
+				Employee newEmpl = new Employee(id, empl.name(), department, empl.salary(), empl.birthDate());
+				addEmployee(newEmpl);
+			}
+			return empl;
+		} finally {
+			writeLock.unlock();
 		}
-		return empl;
-
 	}
 }
