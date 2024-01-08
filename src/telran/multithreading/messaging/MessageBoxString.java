@@ -17,7 +17,6 @@ public class MessageBoxString implements MessageBox {
 		}
 		this.message = message;
 		this.notify();
-
 	}
 
 	@Override
@@ -27,16 +26,15 @@ public class MessageBoxString implements MessageBox {
 		}
 		String res = message;
 		message = null;
-		notify();
+		notifyAll();
 		return res;
 	}
 
 	@Override
 	synchronized public String pull() {
-
 		String str = message;
 		message = null;
-		notify();
+		notifyAll();
 		return str;
 	}
 

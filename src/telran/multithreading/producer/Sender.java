@@ -15,7 +15,6 @@ public class Sender extends Thread {
 	public void run() {
 		for (int i = 1; i <= nMessages; i++) {
 			messageBox.put("message" + i);
-
 		}
 	}
 }

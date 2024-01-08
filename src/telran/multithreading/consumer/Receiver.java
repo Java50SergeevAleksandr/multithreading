@@ -7,20 +7,26 @@ public class Receiver extends Thread {
 
 	public Receiver(MessageBox messageBox) {
 		this.messageBox = messageBox;
-		// FIXME HW #46 fix setting daemon
-		setDaemon(true); // HW #46 remove it
+
 	}
 
 	@Override
 	public void run() {
-		while (true) {
+		boolean isRunning = true;
+		while (isRunning) {
 			String message = null;
+
 			try {
 				message = messageBox.take();
 			} catch (InterruptedException e) {
-				// TODO
+				message = messageBox.pull();
+				isRunning = false;
+				System.out.println("end Receiver " + getId());
 			}
-			System.out.printf("thread id: %d, message: %s\n", getId(), message);
+
+			if (message != null) {
+				System.out.printf("thread id: %d, message: %s\n", getId(), message);
+			}
 		}
 	}
 }

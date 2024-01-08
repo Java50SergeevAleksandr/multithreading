@@ -11,15 +11,17 @@ public class SenderReceiverAppl {
 
 	public static void main(String[] args) throws InterruptedException {
 		MessageBox messageBox = new MessageBoxString();
+		Receiver[] reseivers = new Receiver[N_RECEIVERS];
 		Sender sender = new Sender(messageBox, N_MESSAGES);
 		sender.start();
 		for (int i = 0; i < N_RECEIVERS; i++) {
-			new Receiver(messageBox).start();
+			reseivers[i] = new Receiver(messageBox);
+			reseivers[i].start();
 		}
 		sender.join();
-		Thread.sleep(100); // to give all receivers-daemons process all messages FIXME HW #46 should be
-							// another logic of stopping receivers
-
+		for (Receiver r : reseivers) {
+			r.interrupt();
+		}
 	}
 
 }
