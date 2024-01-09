@@ -19,7 +19,7 @@ public class Receiver extends Thread {
 				print(message);
 			}
 		} catch (InterruptedException e) {
-			while ((message = messageBox.pull()) != null) {
+			while ((message = messageBox.poll()) != null) {
 				print(message);
 			}
 

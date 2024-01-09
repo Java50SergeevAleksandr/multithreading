@@ -14,7 +14,11 @@ public class Sender extends Thread {
 	@Override
 	public void run() {
 		for (int i = 1; i <= nMessages; i++) {
-			messageBox.put("message" + i);
+			try {
+				messageBox.put("message" + i);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

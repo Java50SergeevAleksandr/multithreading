@@ -4,13 +4,13 @@ import telran.multithreading.consumer.Receiver;
 import telran.multithreading.messaging.*;
 import telran.multithreading.producer.Sender;
 
-public class SenderReceiverAppl {
+public class SenderReceiverConditionAppl {
 
 	private static final int N_MESSAGES = 20;
 	private static final int N_RECEIVERS = 10;
 
 	public static void main(String[] args) throws InterruptedException {
-		MessageBox messageBox = new MessageBoxString();
+		MessageBox messageBox = new MessageBoxCondition();
 		Receiver[] reseivers = new Receiver[N_RECEIVERS];
 		Sender sender = new Sender(messageBox, N_MESSAGES);
 		sender.start();
