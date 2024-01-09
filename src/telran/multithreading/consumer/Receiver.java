@@ -13,19 +13,19 @@ public class Receiver extends Thread {
 	@Override
 	public void run() {
 		String message = null;
-		while (true) {
-			try {
+		try {
+			while (true) {
 				message = messageBox.take();
 				print(message);
-			} catch (InterruptedException e) {
-				while ((message = messageBox.pull()) != null) {
-					print(message);
-				}
-
-				System.out.println("end Receiver " + getId());
+			}
+		} catch (InterruptedException e) {
+			while ((message = messageBox.pull()) != null) {
+				print(message);
 			}
 
+			System.out.println("end Receiver " + getId());
 		}
+
 	}
 
 	private void print(String message) {

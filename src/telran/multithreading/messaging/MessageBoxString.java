@@ -16,7 +16,7 @@ public class MessageBoxString implements MessageBox {
 			}
 		}
 		this.message = message;
-		this.notify();
+		this.notifyAll();
 	}
 
 	@Override
