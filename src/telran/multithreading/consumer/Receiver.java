@@ -12,21 +12,23 @@ public class Receiver extends Thread {
 
 	@Override
 	public void run() {
-		boolean isRunning = true;
-		while (isRunning) {
-			String message = null;
-
+		String message = null;
+		while (true) {
 			try {
 				message = messageBox.take();
+				print(message);
 			} catch (InterruptedException e) {
-				message = messageBox.pull();
-				isRunning = false;
+				while ((message = messageBox.pull()) != null) {
+					print(message);
+				}
+
 				System.out.println("end Receiver " + getId());
 			}
 
-			if (message != null) {
-				System.out.printf("thread id: %d, message: %s\n", getId(), message);
-			}
 		}
+	}
+
+	private void print(String message) {
+		System.out.printf("thread id: %d, message: %s\n", getId(), message);
 	}
 }
