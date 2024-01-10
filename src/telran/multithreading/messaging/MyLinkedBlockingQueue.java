@@ -1,71 +1,156 @@
 package telran.multithreading.messaging;
 
+import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.*;
 
 public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
-	// TODO fields
+	private int capacity;
+	private LinkedList<E> list = new LinkedList<>();
+	private Lock lock = new ReentrantLock();
+	private Condition consumerWaiting = lock.newCondition();
+	private Condition producerWaiting = lock.newCondition();
+
 	public MyLinkedBlockingQueue(int capacity) {
-		// TODO
+		this.capacity = capacity;
+	}
+
+	public MyLinkedBlockingQueue() {
+		this(14);
 	}
 
 	@Override
 	public boolean add(E obj) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			lock.lock();
+			if (list.size() == capacity) {
+				throw new IllegalStateException("Element cannot be added at this time due to capacity restrictions");
+			}
+			list.add(obj);
+			consumerWaiting.signal();
+			return true;
+		} finally {
+			lock.unlock();
+		}
+
 	}
 
 	@Override
 	public boolean offer(E obj) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			lock.lock();
+			if (list.size() == capacity) {
+				return false;
+			}
+			list.add(obj);
+			consumerWaiting.signal();
+			return true;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public void put(E obj) throws InterruptedException {
-		// TODO Auto-generated method stub
+		try {
+			lock.lock();
+			while (list.size() == capacity) {
+				producerWaiting.await();
+			}
+			list.add(obj);
+			consumerWaiting.signal();
+		} finally {
+			lock.unlock();
+		}
 
 	}
 
 	@Override
 	public boolean offer(E obj, long timeout, TimeUnit unit) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			lock.lock();
+			if (list.size() == capacity) {
+				if (!producerWaiting.await(timeout, unit)) {
+					return false;
+				}
+			}
+			list.add(obj);
+			consumerWaiting.signal();
+			return true;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public E remove() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			lock.lock();
+			E res = list.pop();
+			producerWaiting.signal();
+			return res;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public E poll() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			lock.lock();
+			E res = list.poll();
+			producerWaiting.signal();
+			return res;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public E take() throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			lock.lock();
+			while (list.isEmpty()) {
+				consumerWaiting.await();
+			}
+			E res = list.pop();
+			producerWaiting.signal();
+			return res;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public E poll(long timeout, TimeUnit unit) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			lock.lock();
+
+			if (list.isEmpty()) {
+				consumerWaiting.await(timeout, unit);
+			}
+			E res = list.poll();
+			producerWaiting.signal();
+			return res;
+
+		} catch (InterruptedException e) {
+			E res = list.poll();
+			producerWaiting.signal();
+			return res;
+		} finally {
+			lock.unlock();
+		}
+
 	}
 
 	@Override
 	public E element() {
-		// TODO Auto-generated method stub
-		return null;
+		return list.getFirst();
 	}
 
 	@Override
 	public E peek() {
-		// TODO Auto-generated method stub
-		return null;
+		return list.peek();
 	}
 
 }
