@@ -1,5 +1,9 @@
 package telran.multithreading.messaging;
 
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
@@ -67,12 +71,14 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 
 	@Override
 	public boolean offer(E obj, long timeout, TimeUnit unit) throws InterruptedException {
+		Instant timeLimit = Instant.now().plus(timeout, unit.toChronoUnit());
 		try {
 			lock.lock();
+			while (list.size() == capacity && Date.from(Instant.now()).before(Date.from(timeLimit))) {
+				producerWaiting.awaitUntil(Date.from(timeLimit));
+			}
 			if (list.size() == capacity) {
-				if (!producerWaiting.await(timeout, unit)) {
-					return false;
-				}
+				return false;
 			}
 			list.add(obj);
 			consumerWaiting.signal();
@@ -123,11 +129,11 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 
 	@Override
 	public E poll(long timeout, TimeUnit unit) {
+		Instant timeLimit = Instant.now().plus(timeout, unit.toChronoUnit());
 		try {
 			lock.lock();
-
-			if (list.isEmpty()) {
-				consumerWaiting.await(timeout, unit);
+			while (list.isEmpty() && Date.from(Instant.now()).before(Date.from(timeLimit))) {
+				consumerWaiting.awaitUntil(Date.from(timeLimit));
 			}
 			E res = list.poll();
 			producerWaiting.signal();
