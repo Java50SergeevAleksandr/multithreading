@@ -21,7 +21,7 @@ public interface MyBlockingQueue<T> {
 
 	T take() throws InterruptedException;
 
-	T poll(long timeout, TimeUnit unit);
+	T poll(long timeout, TimeUnit unit) throws InterruptedException;
 
 	T element();
 

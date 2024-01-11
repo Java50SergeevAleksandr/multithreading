@@ -8,12 +8,14 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
 
+import javax.swing.text.MutableAttributeSet;
+
 public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 	private int capacity;
 	private LinkedList<E> list = new LinkedList<>();
-	private Lock lock = new ReentrantLock();
-	private Condition consumerWaiting = lock.newCondition();
-	private Condition producerWaiting = lock.newCondition();
+	private Lock mutex = new ReentrantLock();
+	private Condition consumerWaiting = mutex.newCondition();
+	private Condition producerWaiting = mutex.newCondition();
 
 	public MyLinkedBlockingQueue(int capacity) {
 		this.capacity = capacity;
@@ -26,7 +28,7 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 	@Override
 	public boolean add(E obj) {
 		try {
-			lock.lock();
+			mutex.lock();
 			if (list.size() == capacity) {
 				throw new IllegalStateException("Element cannot be added at this time due to capacity restrictions");
 			}
@@ -34,37 +36,41 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 			consumerWaiting.signal();
 			return true;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 
 	}
 
 	@Override
 	public boolean offer(E obj) {
+		boolean res = true;
 		try {
-			lock.lock();
+			mutex.lock();
 			if (list.size() == capacity) {
-				return false;
+				res = false;
+			} else {
+				res = list.add(obj);
+				consumerWaiting.signal();
 			}
-			list.add(obj);
-			consumerWaiting.signal();
-			return true;
+
+			return res;
+
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 	}
 
 	@Override
 	public void put(E obj) throws InterruptedException {
 		try {
-			lock.lock();
+			mutex.lock();
 			while (list.size() == capacity) {
 				producerWaiting.await();
 			}
 			list.add(obj);
 			consumerWaiting.signal();
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 
 	}
@@ -73,9 +79,10 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 	public boolean offer(E obj, long timeout, TimeUnit unit) throws InterruptedException {
 		Instant timeLimit = Instant.now().plus(timeout, unit.toChronoUnit());
 		try {
-			lock.lock();
+			mutex.lock();
 			while (list.size() == capacity && Date.from(Instant.now()).before(Date.from(timeLimit))) {
 				producerWaiting.awaitUntil(Date.from(timeLimit));
+				producerWaiting.await(timeout, unit);
 			}
 			if (list.size() == capacity) {
 				return false;
@@ -84,38 +91,38 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 			consumerWaiting.signal();
 			return true;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 	}
 
 	@Override
 	public E remove() {
 		try {
-			lock.lock();
+			mutex.lock();
 			E res = list.pop();
 			producerWaiting.signal();
 			return res;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 	}
 
 	@Override
 	public E poll() {
 		try {
-			lock.lock();
+			mutex.lock();
 			E res = list.poll();
 			producerWaiting.signal();
 			return res;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 	}
 
 	@Override
 	public E take() throws InterruptedException {
 		try {
-			lock.lock();
+			mutex.lock();
 			while (list.isEmpty()) {
 				consumerWaiting.await();
 			}
@@ -123,40 +130,51 @@ public class MyLinkedBlockingQueue<E> implements MyBlockingQueue<E> {
 			producerWaiting.signal();
 			return res;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 	}
 
 	@Override
-	public E poll(long timeout, TimeUnit unit) {
+	public E poll(long timeout, TimeUnit unit) throws InterruptedException {
 		Instant timeLimit = Instant.now().plus(timeout, unit.toChronoUnit());
 		try {
-			lock.lock();
+			mutex.lock();
 			while (list.isEmpty() && Date.from(Instant.now()).before(Date.from(timeLimit))) {
 				consumerWaiting.awaitUntil(Date.from(timeLimit));
 			}
 			E res = list.poll();
-			producerWaiting.signal();
+			if (res != null) {
+				producerWaiting.signal();
+			}
+
 			return res;
 
-		} catch (InterruptedException e) {
-			E res = list.poll();
-			producerWaiting.signal();
-			return res;
 		} finally {
-			lock.unlock();
+			mutex.unlock();
 		}
 
 	}
 
 	@Override
 	public E element() {
-		return list.getFirst();
+		try {
+			mutex.lock();
+			return list.getFirst();
+		} finally {
+			mutex.unlock();
+		}
+
 	}
 
 	@Override
 	public E peek() {
-		return list.peek();
+		try {
+			mutex.lock();
+			return list.peek();
+		} finally {
+			mutex.unlock();
+		}
+
 	}
 
 }
